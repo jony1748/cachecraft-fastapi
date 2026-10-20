@@ -1,8 +1,12 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+os.environ.setdefault("DATABASE_URL", "sqlite://")
 
 from app.db.session import Base, get_session
 from app.main import app
