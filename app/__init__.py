@@ -1,0 +1,1 @@
+"""CacheCraft API application."""

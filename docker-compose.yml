@@ -1,0 +1,41 @@
+services:
+  api:
+    build: .
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      APP_NAME: ${APP_NAME:-CacheCraft API}
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cachecraft}:${POSTGRES_PASSWORD:-cachecraft}@db:5432/${POSTGRES_DB:-cachecraft}
+      TRANSFORMER_DELAY_SECONDS: ${TRANSFORMER_DELAY_SECONDS:-0}
+      CACHE_CLEANUP_INTERVAL_SECONDS: ${CACHE_CLEANUP_INTERVAL_SECONDS:-3600}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-86400}
+      API_PREFIX: ${API_PREFIX:-/api/v1}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cachecraft}
+      POSTGRES_USER: ${POSTGRES_USER:-cachecraft}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cachecraft}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
