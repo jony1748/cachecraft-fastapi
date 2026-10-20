@@ -10,8 +10,8 @@ from cache_cli.settings import CLISettings
 def run() -> None:
     try:
         settings = CLISettings()
-        if settings.json is not None:
-            payload = json.loads(settings.json)
+        if settings.json_input is not None:
+            payload = json.loads(settings.json_input)
         else:
             path = settings.input_path()
             raw = sys.stdin.read() if path is None else path.read_text(encoding="utf-8")
@@ -20,7 +20,7 @@ def run() -> None:
             raise ValueError("Input JSON must be an object.")
 
         results = []
-        with httpx.Client(base_url=settings.host.rstrip("/"), timeout=15) as client:
+        with httpx.Client(base_url=str(settings.host).rstrip("/"), timeout=15) as client:
             for iteration in range(settings.repeat):
                 created = client.post("/api/v1/payload", json=payload)
                 created.raise_for_status()

@@ -31,6 +31,8 @@ def create(request: PayloadCreate, session: Session = Depends(get_session)) -> P
 def read(payload_id: str, session: Session = Depends(get_session)) -> PayloadRead:
     payload = get_payload(session, payload_id)
     if payload is None:
-        raise HTTPException(status_code=PAYLOAD_NOT_FOUND.status_code,
-                            detail={"error": PAYLOAD_NOT_FOUND.code, "message": PAYLOAD_NOT_FOUND.message})
+        raise HTTPException(
+            status_code=PAYLOAD_NOT_FOUND.status_code,
+            detail={"error": PAYLOAD_NOT_FOUND.code, "message": PAYLOAD_NOT_FOUND.message},
+        )
     return PayloadRead(output=payload.output)
