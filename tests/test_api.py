@@ -1,6 +1,11 @@
 from app.services import payloads
 
 
+def test_health_endpoints_are_available_at_root(client):
+    assert client.get("/health/live").json() == {"status": "alive"}
+    assert client.get("/health/ready").json() == {"status": "ready"}
+
+
 def test_create_and_read_interleaved_payload(client):
     response = client.post(
         "/api/v1/payload",

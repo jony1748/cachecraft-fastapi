@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.api.routes import router
+from app.api.routes import health_router, router
 from app.core.config import get_settings
 from app.core.errors import HTTP_ERROR, INTERNAL_ERROR, INVALID_INPUT
 from app.db.session import Base, SessionLocal, engine
@@ -45,6 +45,7 @@ async def _cleanup_loop() -> None:
 
 
 app = FastAPI(title=settings.app_name, version="1.0.0", lifespan=lifespan)
+app.include_router(health_router)
 app.include_router(router, prefix=settings.api_prefix)
 
 

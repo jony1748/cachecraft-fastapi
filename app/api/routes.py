@@ -7,15 +7,16 @@ from app.db.session import get_session
 from app.schemas.payload import PayloadCreate, PayloadCreated, PayloadRead
 from app.services.payloads import create_payload, get_payload
 
+health_router = APIRouter()
 router = APIRouter()
 
 
-@router.get("/health/live", tags=["health"])
+@health_router.get("/health/live", tags=["health"])
 def liveness() -> dict[str, str]:
     return {"status": "alive"}
 
 
-@router.get("/health/ready", tags=["health"])
+@health_router.get("/health/ready", tags=["health"])
 def readiness(session: Session = Depends(get_session)) -> dict[str, str]:
     session.execute(text("SELECT 1"))
     return {"status": "ready"}
