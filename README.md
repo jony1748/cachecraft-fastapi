@@ -86,7 +86,7 @@ Copy `.env.example` to `.env`. Settings are loaded from environment variables (w
 | `DATABASE_URL` | SQLAlchemy connection URL | `sqlite:///./cachecraft.db` |
 | `TRANSFORMER_DELAY_SECONDS` | Simulated upstream latency | `0` |
 | `CACHE_TTL_SECONDS` | Expiry for transform cache rows; `0` disables expiry | `86400` |
-| `CACHE_CLEANUP_INTERVAL_SECONDS` | Reserved cleanup cadence | `3600` |
+| `CACHE_CLEANUP_INTERVAL_SECONDS` | Cleanup interval for expired transform entries | `3600` |
 | `API_PREFIX` | Versioned API prefix | `/api/v1` |
 | `API_PORT` | Compose host port | `8000` |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Compose database credentials | `cachecraft` |
@@ -101,9 +101,3 @@ ruff check .
 ```
 
 Tests use isolated in-memory SQLite and cover interleaving, identifier reuse, per-string transform reuse, validation, and missing IDs.
-
-## Design notes
-
-`app/api` owns HTTP behavior, `app/schemas` validates boundary data, `app/services` implements cache and transform policy, and `app/db` contains persistence. Error identifiers and client-facing messages live in `app/core/errors.py`. The transformation is an adapter (`app/services/transformer.py`) that can be replaced with an asynchronous provider integration.
-
-For higher traffic, use a production migration tool (such as Alembic) instead of startup `create_all`, run multiple stateless API replicas behind a load balancer, and consider moving slow external transformation calls to a durable job queue. The unique cache key includes the transformation version; concurrent cache misses can still perform duplicate upstream work, so deployments with costly transformations should add a distributed per-key lock or a provider-backed idempotency mechanism.
